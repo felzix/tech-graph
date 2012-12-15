@@ -1,0 +1,17 @@
+{Vanilla}
+shears	lilypad	used
+flint and steel	nether portal	created
+obsidian enchanting table	mfg	4
+leather	cow	drop
+dirt	carrot	prod
+solar panel	EU	1	EU/t
+
+(ends here)
+
+Mod name is between { and }.
+Each line is source, destination, edge type, edge attributes if any.
+Or line is single thing for entity that doesn't interact (none in Vanilla AFAIK).
+Each element is separated by a single tab.
+Each source or destination must correspond directly to a resource file.
+Resources are resources/modname/entity.png.
+

@@ -13,5 +13,6 @@ mod.node("cow", "resources/vanilla/cow.png")
 
 mod.edge(EdgeObtainedByDrop(), "cow", "leather")
 
-mod.draw("out")
+mod.save("out.dot")
+mod.draw("out.png")
 

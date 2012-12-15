@@ -7,10 +7,23 @@ GRAPH_CLASS = nx.DiGraph
 LAYOUT      = "dot"
 SHAPE       = "square"
 
-class ModPack:
-    """Note that later mods' images replace earlier mods' images"""
-    def __init__(self, name, mods=[]):
+class AbstractGraph:
+
+    def __init__(self, name):
         self.graph = GRAPH_CLASS(name=name)
+
+    def draw(self, outfile):
+        graph = nx.to_agraph(self.graph, label=name)
+        graph.draw(outfile, "png", prog=LAYOUT)
+
+    def save(self, outfile):
+        nx.write_dot(self.graph, outfile)
+
+class ModPack(AbstractGraph):
+    """Note that later mods' images replace earlier mods' images"""
+
+    def __init__(self, name, mods=[]):
+        AbstractGraph.__init__(self, name)
         self.mods = mods
         for mod in mods:
             nx.compose(self.graph, mod.graph, name=name)
@@ -19,13 +32,10 @@ class ModPack:
         self.mods.append(mod)
         nx.compose(self.graph, mod.graph, name=self.graph.name)
 
-    def draw(self, outfile):
-        graph = nx.to_agraph(self.graph, label=name)
-        graph.draw(outfile, "png", prog=LAYOUT)
+class Mod(AbstractGraph):
 
-class Mod:
-    def __init__(self, name, image=None):
-        self.graph = GRAPH_CLASS(name=name, image=image)
+    def __init__(self, name):
+        AbstractGraph.__init__(self, name)
 
     def node(self, name, image):
         self.graph.add_node(name, image=image, shape=SHAPE, ratio=1, label="")
@@ -42,19 +52,26 @@ class Mod:
         graph = nx.to_agraph(self.graph)
         graph.draw(outfile, "png", prog=LAYOUT)
 
+    def save(self, outfile):
+        nx.write_dot(self.graph, outfile)
+
 class Edge:
+
     def __str__(self):
         return ""
 
 class EdgeUsedToObtain(Edge):
+
     name = "Used to obtain"
     color = "blue"
 
 class EdgeCreatedWith(Edge):
+
     name = "Created with"
     color = "purple"
 
 class EdgeManufacturedWith(Edge):
+
     name = "Manufactured with"
     color = "black"
 
@@ -65,14 +82,17 @@ class EdgeManufacturedWith(Edge):
         return str(self.quantity)
 
 class EdgeObtainedByDrop(Edge):
+
     name = "Obtained by drop"
     color = "red"
 
 class EdgeProducedOrFoundBy(Edge):
+
     name = "Produced by / Found by"
     color = "yellow"
 
 class EdgeFuelsOrPowers(Edge):
+
     name = "Fuels or Powers"
     color = "green"
 
