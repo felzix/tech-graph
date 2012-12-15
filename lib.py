@@ -32,11 +32,7 @@ class Mod:
 
     def edge(self, edge, source, destination):
         color = edge.color
-        label = None
-        if isinstance(edge, EdgeManufacturedWith):
-            label = str(edge.quantity)
-        if isinstance(edge, EdgeFuelsOrPowers):
-            label = str(edge.quantity) + " " + edge.unit
+        label = str(edge)
         if label:
             self.graph.add_edge(source, destination, color=color, label=label)
         else:
@@ -47,7 +43,8 @@ class Mod:
         graph.draw(outfile, "png", prog=LAYOUT)
 
 class Edge:
-    pass
+    def __str__(self):
+        return ""
 
 class EdgeUsedToObtain(Edge):
     name = "Used to obtain"
@@ -64,6 +61,9 @@ class EdgeManufacturedWith(Edge):
     def __init__(self, quantity=1):
         self.quantity = quantity
 
+    def __str__(self):
+        return str(self.quantity)
+
 class EdgeObtainedByDrop(Edge):
     name = "Obtained by drop"
     color = "red"
@@ -76,8 +76,11 @@ class EdgeFuelsOrPowers(Edge):
     name = "Fuels or Powers"
     color = "green"
 
-    def __init__(self, quantity, unit=None):
-        self.quantity = quantity
+    def __init__(self, magnitude, unit=None):
+        self.magnitude = magnitude
         # e.g. item, EU, EU/t, MJ
         self.unit = unit
+
+    def __str__(self):
+        return str(self.magnitude) + " " + self.unit
 
