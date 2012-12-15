@@ -8,7 +8,10 @@ from lib import EdgeObtainedByDrop, EdgeProducedOrFoundBy, EdgeFuelsOrPowers
 
 mod = Mod("Vanilla")
 
-mod.entity("leather", "resources/vanilla/leather.png")
+mod.node("leather", "resources/vanilla/leather.png")
+mod.node("cow", "resources/vanilla/cow.png")
 
-mod.draw()
+mod.edge(EdgeObtainedByDrop(), "cow", "leather")
+
+mod.draw("out")
 

@@ -4,71 +4,50 @@ import networkx as nx
 
 #XXX might need to be MultiDiGraph
 GRAPH_CLASS = nx.DiGraph
+LAYOUT      = "dot"
+SHAPE       = "square"
 
 class ModPack:
     """Note that later mods' images replace earlier mods' images"""
     def __init__(self, name, mods=[]):
-        self.graph = GRAPH_CLASS()
+        self.graph = GRAPH_CLASS(name=name)
         self.mods = mods
         for mod in mods:
-            nx.compose(self.graph, mod.graph)
+            nx.compose(self.graph, mod.graph, name=name)
 
     def mod(self, mod):
         self.mods.append(mod)
-        nx.compose(self.graph, mod.graph)
+        nx.compose(self.graph, mod.graph, name=self.graph.name)
 
-    def draw(selfi, outfile):
-        graph = nx.to_agraph(self.graph)
-        graph.draw(outfile, "png")
+    def draw(self, outfile):
+        graph = nx.to_agraph(self.graph, label=name)
+        graph.draw(outfile, "png", prog=LAYOUT)
 
 class Mod:
     def __init__(self, name, image=None):
         self.graph = GRAPH_CLASS(name=name, image=image)
 
     def node(self, name, image):
-        self.graph.add_node(name, image=image)
+        self.graph.add_node(name, image=image, shape=SHAPE, ratio=1, label="")
 
     def edge(self, edge, source, destination):
-        self.graph.add_edge(source, destination, type=edge)
+        color = edge.color
+        label = None
+        if isinstance(edge, EdgeManufacturedWith):
+            label = str(edge.quantity)
+        if isinstance(edge, EdgeFuelsOrPowers):
+            label = str(edge.quantity) + " " + edge.unit
+        if label:
+            self.graph.add_edge(source, destination, color=color, label=label)
+        else:
+            self.graph.add_edge(source, destination, color=color)
 
-    def draw(self):
+    def draw(self, outfile):
         graph = nx.to_agraph(self.graph)
-        graph.draw(outfile, "png")
-
-class Entity:
-    def __init__(self, name):
-        # name and image can be a lists for grouped entities.
-        # Like logs and leaves.
-        #XXX might not be implemented
-        # name is used for uniqueness for composing mods into modpacks
-        #TODO make sure this actually works
-        self.name = name
-
-    def draw(self):
-        pass #TODO
-
-    #TODO determine if this handles node uniqueness for composition
-    def __str__(self):
-        return self.name
-
-    #TODO these can probably be removed
-    def __eq__(self, other):
-        return self.name == other.name
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
+        graph.draw(outfile, "png", prog=LAYOUT)
 
 class Edge:
-    def draw(self):
-        #XXX I'm not sure if pygraphviz can do custom edges
-        #http://networkx.lanl.gov/reference/drawing.html
-        pass #TODO
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    pass
 
 class EdgeUsedToObtain(Edge):
     name = "Used to obtain"
@@ -80,7 +59,7 @@ class EdgeCreatedWith(Edge):
 
 class EdgeManufacturedWith(Edge):
     name = "Manufactured with"
-    color = None
+    color = "black"
 
     def __init__(self, quantity=1):
         self.quantity = quantity
@@ -101,3 +80,4 @@ class EdgeFuelsOrPowers(Edge):
         self.quantity = quantity
         # e.g. item, EU, EU/t, MJ
         self.unit = unit
+
