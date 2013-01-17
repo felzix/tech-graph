@@ -4,20 +4,24 @@ import networkx as nx
 
 #XXX might need to be MultiDiGraph
 GRAPH_CLASS = nx.DiGraph
-LAYOUT      = "dot"
-SHAPE       = "square"
+LAYOUT = "dot"
+SHAPE = "square"
+FORMAT = "png"
 
 class AbstractGraph:
-
     def __init__(self, name):
         self.graph = GRAPH_CLASS(name=name)
 
     def draw(self, outfile):
-        graph = nx.to_agraph(self.graph, label=name)
-        graph.draw(outfile, "png", prog=LAYOUT)
+        graph = nx.to_agraph(self.graph)
+        graph.draw(outfile, FORMAT, prog=LAYOUT)
 
     def save(self, outfile):
         nx.write_dot(self.graph, outfile)
+
+    def load(selfself, infile):
+        nx.read_dot(infile)
+
 
 class ModPack(AbstractGraph):
     """Note that later mods' images replace earlier mods' images"""
@@ -32,13 +36,16 @@ class ModPack(AbstractGraph):
         self.mods.append(mod)
         nx.compose(self.graph, mod.graph, name=self.graph.name)
 
-class Mod(AbstractGraph):
 
+class Mod(AbstractGraph):
     def __init__(self, name):
         AbstractGraph.__init__(self, name)
+        self.nodes = set()
 
     def node(self, name, image):
-        self.graph.add_node(name, image=image, shape=SHAPE, ratio=1, label="")
+        if not name in self.nodes:
+            self.nodes.add(name)
+            self.graph.add_node(name, image=image, shape=SHAPE, ratio=1, label="")
 
     def edge(self, edge, source, destination):
         color = edge.color
@@ -50,28 +57,28 @@ class Mod(AbstractGraph):
 
     def draw(self, outfile):
         graph = nx.to_agraph(self.graph)
-        graph.draw(outfile, "png", prog=LAYOUT)
+        graph.draw(outfile, FORMAT, prog=LAYOUT)
 
     def save(self, outfile):
         nx.write_dot(self.graph, outfile)
 
-class Edge:
 
+class Edge:
     def __str__(self):
         return ""
 
-class EdgeUsedToObtain(Edge):
 
+class EdgeUsedToObtain(Edge):
     name = "Used to obtain"
     color = "blue"
 
-class EdgeCreatedWith(Edge):
 
+class EdgeCreatedWith(Edge):
     name = "Created with"
     color = "purple"
 
-class EdgeManufacturedWith(Edge):
 
+class EdgeManufacturedWith(Edge):
     name = "Manufactured with"
     color = "black"
 
@@ -81,18 +88,18 @@ class EdgeManufacturedWith(Edge):
     def __str__(self):
         return str(self.quantity)
 
-class EdgeObtainedByDrop(Edge):
 
+class EdgeObtainedByDrop(Edge):
     name = "Obtained by drop"
     color = "red"
 
-class EdgeProducedOrFoundBy(Edge):
 
+class EdgeProducedOrFoundBy(Edge):
     name = "Produced by / Found by"
     color = "yellow"
 
-class EdgeFuelsOrPowers(Edge):
 
+class EdgeFuelsOrPowers(Edge):
     name = "Fuels or Powers"
     color = "green"
 

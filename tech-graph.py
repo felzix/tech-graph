@@ -1,18 +1,33 @@
 #!/usr/bin/python
 
-from lib import ModPack, Mod
-from lib import EdgeUsedToObtain, EdgeCreatedWith, EdgeManufacturedWith
-from lib import EdgeObtainedByDrop, EdgeProducedOrFoundBy, EdgeFuelsOrPowers
+from lib import  Mod
+from lang import Lang
+from sys import argv, exit
 
-#TODO replace with file interpreting and/or loading
+if len(argv) < 3:
+    print "Must pass input TG (tech-graph) filename and png output filename."
+    exit(1)
 
-mod = Mod("Vanilla")
+file = argv[1]
+png = argv[2]
 
-mod.node("leather", "resources/vanilla/leather.png")
-mod.node("cow", "resources/vanilla/cow.png")
+if png == 'dot':
+    dot = True
+    png = argv[3]
 
-mod.edge(EdgeObtainedByDrop(), "cow", "leather")
+RESOURCE_DIR = "resources"
 
-mod.save("out.dot")
-mod.draw("out.png")
+modpack = Lang().read(file)
 
+for modname, rels in modpack.items():
+    mod = Mod(modname)
+    for rel in rels:
+        src = rel[0]
+        dest = rel[1]
+        edge = rel[2]
+        # mod.node() quietly ignores duplicates
+        folder = RESOURCE_DIR + '/' + modname.lower()
+        mod.node(src, folder + '/' + src + '.png')
+        mod.node(dest, folder + '/' + dest + '.png')
+        mod.edge(edge, src, dest)
+    mod.draw(png)

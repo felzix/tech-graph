@@ -1,0 +1,10 @@
+{Vanilla}
+shears,lily_pad,used
+flint_and_steel,nether_portal,created
+obsidian,enchantment_table,4
+cow,leather,drop
+cow,raw_beef,drop
+dirt,carrot,prod
+
+{Industrialcraft2}
+solar_panel,eu,1,EU/t
